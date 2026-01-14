@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Works</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 24px;
+        line-height: 1.6;
+      }
+      form {
+        display: grid;
+        gap: 8px;
+        max-width: 640px;
+        margin-bottom: 32px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        padding: 10px 14px;
+        border: none;
+        border-radius: 6px;
+        background: #28736f;
+        color: #fff;
+        cursor: pointer;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      th {
+        background: #f4f4f4;
+      }
+      .delete {
+        background: #c62828;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Works Admin</h1>
+    <p>ログイン中: <%= (user && user.email) || 'unknown' %> | <a href="/auth/logout">ログアウト</a></p>
+
+    <form method="POST" action="/admin/works" enctype="multipart/form-data">
+      <label>タイトル <input name="title" required /></label>
+      <label>日付 <input type="date" name="date" required /></label>
+      <label>抜粋（一覧用） <input name="excerpt" required /></label>
+      <label>本文 <textarea name="body" rows="4" required></textarea></label>
+      <fieldset>
+        <legend>種別</legend>
+        <label><input type="radio" name="kind" value="did" checked /> やったこと</label>
+        <label><input type="radio" name="kind" value="made" /> つくったもの</label>
+      </fieldset>
+      <label>画像ファイル <input type="file" name="image" accept="image/*" /></label>
+      <label>画像URL（ファイル未指定時のみ） <input name="imageUrl" /></label>
+      <button type="submit">追加</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>タイトル</th>
+          <th>日付</th>
+          <th>抜粋</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% works.forEach(function(work){ %>
+          <tr>
+            <td><%= work.id %></td>
+            <td><%= work.title %></td>
+            <td><%= work.date.toISOString().split('T')[0] %></td>
+            <td><%= work.excerpt %></td>
+            <td>
+              <form method="POST" action="/admin/works/<%= work.id %>/delete" onsubmit="return confirm('削除しますか？');">
+                <button class="delete" type="submit">削除</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </body>
+</html>
