@@ -17,6 +17,7 @@ var usersRouter = require('./routes/users');
 var worksApiRouter = require('./routes/works');
 var adminRouter = require('./routes/admin');
 var authRouter = require('./routes/auth');
+var contactRouter = require('./routes/contact');
 require('./lib/passport'); // パスポート設定の読み込み
 
 var app = express();
@@ -46,6 +47,7 @@ app.use('/users', usersRouter);
 app.use('/api/works', worksApiRouter);
 app.use('/admin', adminRouter);
 app.use('/auth', authRouter);
+app.use('/api/contact', contactRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

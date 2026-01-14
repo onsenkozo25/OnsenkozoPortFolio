@@ -5,11 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "お問い合わせフォーム",
       detail: ""
     },
-    q1: { label: "質問1", title: "", detail: "" },
-    q2: { label: "質問2", title: "", detail: "" },
-    q3: { label: "質問3", title: "", detail: "" },
-    q4: { label: "質問4", title: "", detail: "" },
-    q5: { label: "質問5", title: "", detail: "" },
+    q1: { label: "暇な時間があったら？", title: "", detail: "Pinterestで、グラフィックとか3Dモデリングとかのデザイン見る" },
+    q2: { label: "趣味は？", title: "", detail: "ものづくり" },
+    q3: { label: "何が得意？", title: "", detail: "手を動かすことならなんでも Fusion Rhinoceros blender使える" },
+    q4: { label: "大事にしている価値観", title: "", detail: "誠実さと創造性" },
+    q5: { label: "SNS", title: "", detail: "InstagramとTwitter" },
     q6: { label: "質問6", title: "", detail: "" },
     q7: { label: "質問7", title: "", detail: "" },
     q8: { label: "質問8", title: "", detail: "" }
@@ -178,6 +178,46 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCarousel();
   };
 
+  const setupContactForm = () => {
+    if (!bodyEl) return;
+    const form = bodyEl.querySelector(".contact-form");
+    if (!form) return;
+    const statusEl = form.querySelector(".contact-status");
+    const submitBtn = form.querySelector("button[type='submit']");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (form.dataset.submitting === "true") return;
+      form.dataset.submitting = "true";
+      if (submitBtn) submitBtn.disabled = true;
+      if (statusEl) statusEl.textContent = "送信中...";
+
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || "送信に失敗しました。");
+        }
+        if (statusEl) statusEl.textContent = "送信しました。";
+        form.reset();
+      } catch (err) {
+        if (statusEl) {
+          statusEl.textContent = err.message || "送信に失敗しました。";
+        }
+      } finally {
+        form.dataset.submitting = "false";
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  };
+
   const updatePanel = (key) => {
     const topic = topics[key];
     if (!topic) return;
@@ -192,8 +232,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <label>メール<input type="email" name="email" required /></label>
           <label>メッセージ<textarea name="message" rows="4" required></textarea></label>
           <button type="submit">送信</button>
+          <p class="contact-status" aria-live="polite"></p>
         </form>
       `;
+      setupContactForm();
     } else {
       bodyEl.textContent = topic.detail || "";
     }
