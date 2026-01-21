@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteBase /api/
+
+RewriteRule ^works/([^/]+)/?$ /api/works/index.php?slug=$1 [QSA,L]
+RewriteRule ^works/?$ /api/works/index.php [QSA,L]
+RewriteRule ^upload/?$ /api/upload/index.php [QSA,L]
