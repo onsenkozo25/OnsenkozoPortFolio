@@ -33,7 +33,7 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-base);
-  background: var(--base) url("/images/タイルパターン.svg") repeat;
+  background: var(--base) url("/images/tile-pattern.svg") repeat;
   background-size: 70px 70px;
   color: var(--ink);
   overscroll-behavior-y: none;

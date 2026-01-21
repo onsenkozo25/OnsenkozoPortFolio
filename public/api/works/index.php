@@ -8,6 +8,7 @@ header('Pragma: no-cache');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $root = dirname(__DIR__, 3);
 $dataFile = $root . '/data/works.json';
+require_once dirname(__DIR__, 2) . '/auth/helpers.php';
 
 function jsonResponse($payload, int $status = 200): void
 {
@@ -69,7 +70,9 @@ if ($method === 'GET') {
         $kind = null;
     }
     if ($kind) {
-        $works = array_values(array_filter($works, fn($work) => ($work['kind'] ?? 'did') === $kind));
+        $works = array_values(array_filter($works, function ($work) use ($kind) {
+            return ($work['kind'] ?? 'did') === $kind;
+        }));
     }
     usort($works, function ($a, $b) {
         $aTime = strtotime($a['updatedAt'] ?? $a['createdAt'] ?? '1970-01-01T00:00:00Z');
@@ -92,6 +95,7 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
+    auth_require_login(true);
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw, true);
     if (!is_array($payload)) {
@@ -107,7 +111,9 @@ if ($method === 'POST') {
     $tags = [];
     if (isset($payload['tags'])) {
         $tags = is_array($payload['tags']) ? $payload['tags'] : [$payload['tags']];
-        $tags = array_values(array_filter(array_map(fn($tag) => trim((string) $tag), $tags), 'strlen'));
+        $tags = array_values(array_filter(array_map(function ($tag) {
+            return trim((string) $tag);
+        }, $tags), 'strlen'));
     }
 
     $contentJson = $payload['contentJson'] ?? [];

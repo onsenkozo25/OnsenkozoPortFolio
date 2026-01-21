@@ -5,6 +5,8 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 
+require_once dirname(__DIR__, 2) . '/auth/helpers.php';
+
 function jsonResponse($payload, int $status = 200): void
 {
     http_response_code($status);
@@ -15,6 +17,8 @@ function jsonResponse($payload, int $status = 200): void
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     jsonResponse(['error' => 'method not allowed'], 405);
 }
+
+auth_require_login(true);
 
 if (!isset($_FILES['file'])) {
     jsonResponse(['error' => 'file is required'], 400);

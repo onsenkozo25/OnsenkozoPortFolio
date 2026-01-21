@@ -4,3 +4,4 @@ node_modules/
 public/uploads/
 public/works-viewer/
 admin/dist/
+data/oauth.php
