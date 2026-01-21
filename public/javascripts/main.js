@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabs = Array.from(document.querySelectorAll(".pill.tab"));
   const workTabs = Array.from(document.querySelectorAll(".work-tab"));
   const worksSection = document.querySelector(".works");
+  const worksCarousel = document.querySelector(".works-carousel");
   const worksTrack = document.getElementById("worksTrack");
   const prevBtn = document.querySelector(".work-nav.prev");
   const nextBtn = document.querySelector(".work-nav.next");
@@ -42,8 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentTab = { key: "did" };
   let wheelAccumulator = 0;
   let autoScrollTimer = null;
-  const slotOrder = ["left", "center", "right"];
-  let slotCards = [];
+  const withTimestamp = (url) => `${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`;
 
   const startTitleRotation = () => {
     if (!rotatingTitle) return;
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const openModalBySlug = async (slug) => {
     if (!slug) return;
     try {
-      const res = await fetch(`/api/works/${encodeURIComponent(slug)}`);
+      const res = await fetch(withTimestamp(`/api/works/${encodeURIComponent(slug)}`));
       if (!res.ok) throw new Error("failed");
       const work = await res.json();
       openModal(work);
@@ -131,80 +131,54 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   };
 
-  const ensureSlots = () => {
-    if (!worksTrack || slotCards.length) return;
-    worksTrack.innerHTML = "";
-    slotCards = slotOrder.map((pos) => {
-      const card = document.createElement("div");
-      card.className = `work-card work-card--${pos}`;
-      card.addEventListener("click", () => {
-        const slug = card.dataset.slug;
-        if (slug) openModalBySlug(slug);
-      });
-      worksTrack.appendChild(card);
-      return card;
+  const updateCarousel = (behavior = "smooth") => {
+    if (!worksTrack || !worksCarousel) return;
+    const cards = Array.from(worksTrack.children);
+    if (!cards.length) return;
+    const total = cards.length;
+    currentSlide = ((currentSlide % total) + total) % total;
+    cards.forEach((card, idx) => {
+      card.classList.remove("is-center", "is-side");
+      card.classList.add(idx === currentSlide ? "is-center" : "is-side");
     });
-  };
-
-  const updateCard = (card, work, role, hide) => {
-    card.classList.remove("is-center", "is-side", "is-hidden");
-    card.classList.add(role === "center" ? "is-center" : "is-side");
-    if (hide) {
-      card.classList.add("is-hidden");
-      card.innerHTML = "";
-      card.dataset.slug = "";
-      return;
-    }
-    card.innerHTML = buildCardMarkup(work);
-    card.dataset.slug = work.slug || "";
-  };
-
-  const updateCarousel = () => {
-    if (!worksTrack) return;
-    ensureSlots();
-    if (!worksData.length) return;
-    const total = worksData.length;
-    const centerIndex = ((currentSlide % total) + total) % total;
-    const leftIndex = (centerIndex - 1 + total) % total;
-    const rightIndex = (centerIndex + 1) % total;
-    const showSides = total > 1;
-    updateCard(slotCards[0], worksData[leftIndex], "side", !showSides);
-    updateCard(slotCards[1], worksData[centerIndex], "center", false);
-    updateCard(slotCards[2], worksData[rightIndex], "side", total <= 2);
+    const target = cards[currentSlide];
+    requestAnimationFrame(() => {
+      const offset =
+        target.offsetLeft - (worksCarousel.clientWidth - target.offsetWidth) / 2;
+      worksCarousel.scrollTo({ left: offset, behavior });
+    });
   };
 
   const renderCarousel = () => {
     if (!worksTrack) return;
-    ensureSlots();
-    updateCarousel();
+    worksTrack.innerHTML = "";
+    worksData.forEach((work) => {
+      const card = document.createElement("div");
+      card.className = "work-card";
+      card.innerHTML = buildCardMarkup(work);
+      card.dataset.slug = work.slug || "";
+      card.addEventListener("click", () => openModalBySlug(work.slug));
+      worksTrack.appendChild(card);
+    });
+    updateCarousel("auto");
     startAutoScroll();
   };
 
   const nextSlide = () => {
     if (!worksData.length) return;
-    if (worksTrack.classList.contains("is-animating")) return;
-    worksTrack.classList.add("is-animating", "is-next");
-    setTimeout(() => {
-      currentSlide = (currentSlide + 1) % worksData.length;
-      updateCarousel();
-      worksTrack.classList.remove("is-animating", "is-next");
-    }, 420);
+    currentSlide = (currentSlide + 1) % worksData.length;
+    updateCarousel("smooth");
   };
 
   const prevSlideFn = () => {
     if (!worksData.length) return;
-    if (worksTrack.classList.contains("is-animating")) return;
-    worksTrack.classList.add("is-animating", "is-prev");
-    setTimeout(() => {
-      currentSlide = (currentSlide - 1 + worksData.length) % worksData.length;
-      updateCarousel();
-      worksTrack.classList.remove("is-animating", "is-prev");
-    }, 420);
+    currentSlide = (currentSlide - 1 + worksData.length) % worksData.length;
+    updateCarousel("smooth");
   };
 
   if (nextBtn) nextBtn.addEventListener("click", nextSlide);
   if (prevBtn) prevBtn.addEventListener("click", prevSlideFn);
-  window.addEventListener("resize", updateCarousel);
+  window.addEventListener("resize", () => updateCarousel("auto"));
 
   const startAutoScroll = () => {
     if (autoScrollTimer) {
@@ -231,7 +205,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loadWorks = async () => {
     try {
-      const res = await fetch(`/api/works?kind=${currentTab.key}`);
+      const res = await fetch(
+        withTimestamp(`/api/works?kind=${encodeURIComponent(currentTab.key)}`)
+      );
       if (!res.ok) throw new Error("failed");
       const data = await res.json();
       worksData = Array.isArray(data) ? data : [];

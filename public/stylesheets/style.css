@@ -12,14 +12,15 @@
   --white: #ffffff;
   --font-base: "Kosugi", "Yomogi", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-display: "Palette Mosaic", "Kosugi", sans-serif;
-  --font-info: "M PLUS 1p", "Kosugi", "Yomogi", "Hiragino Sans",
-    "Yu Gothic", sans-serif;
-  --font-question: "M PLUS 1p", "Kosugi", "Yomogi", "Hiragino Sans",
-    "Yu Gothic", sans-serif;
+  --font-info: var(--font-zen);
+  --font-question: var(--font-zen);
   --font-contact: var(--font-base);
   --font-works-tab: var(--font-display);
-  --font-works-body: var(--font-base);
-  --font-modal: var(--font-base);
+  --font-works-body: var(--font-zen);
+  --font-modal: var(--font-zen);
+  --font-zen: "Zen Maru Gothic", "Kosugi", "Yomogi", "Hiragino Sans",
+    "Yu Gothic", sans-serif;
+  --noise-image: url("/images/noise.png");
 }
 
 *,
@@ -141,7 +142,7 @@ h1 {
 }
 
 .info-panel {
-  background: var(--answer);
+  background-color: var(--answer);
   border: none;
   padding: 22px;
   border-radius: 18px;
@@ -270,7 +271,7 @@ h1 {
 }
 
 .topic {
-  background: #eeeeee;
+  background-color: #eeeeee;
   color: var(--ink);
   border: none;
   border-radius: 14px;
@@ -313,7 +314,7 @@ h1 {
   font-weight: 700;
   font-family: var(--font-contact);
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.55);
+  background-color: rgba(255, 255, 255, 0.55);
   box-shadow: none;
 }
 
@@ -335,6 +336,8 @@ h1 {
   height: 650px;
   overflow: visible;
   font-family: var(--font-works-body);
+  --work-card-width: 280px;
+  --work-card-gap: 24px;
 }
 
 .works.did {
@@ -378,7 +381,7 @@ h1 {
   font-family: var(--font-works-tab);
   box-shadow: none;
   cursor: pointer;
-  background: #28736f;
+  background-color: #28736f;
   color: #f2f0e6;
   border: none;
   position: relative;
@@ -386,7 +389,7 @@ h1 {
 }
 
 .work-tab.tab-made {
-  background: #d57b0e;
+  background-color: #d57b0e;
 }
 
 .work-tab.active {
@@ -414,33 +417,41 @@ h1 {
 
 .works-carousel {
   position: relative;
-  overflow: hidden;
-  padding: 0 120px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0;
   height: 100%;
   display: flex;
   align-items: center;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.works-carousel::-webkit-scrollbar {
+  display: none;
 }
 
 .works-track {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
   align-items: center;
-  justify-items: center;
-  gap: 24px;
+  gap: var(--work-card-gap);
   height: 100%;
-  width: 100%;
+  width: max-content;
+  padding: 0 calc(50% - var(--work-card-width) / 2);
 }
 
 .work-card {
-  width: 100%;
-  max-width: 300px;
+  flex: 0 0 var(--work-card-width);
+  width: var(--work-card-width);
+  max-width: var(--work-card-width);
   min-height: 0;
   border-radius: 0;
   padding: 18px;
   color: var(--ink);
   background: transparent;
   box-shadow: none;
-  --shift-x: 0px;
   --scale: 1;
   transition: transform 0.42s ease, opacity 0.42s ease;
   cursor: pointer;
@@ -449,7 +460,9 @@ h1 {
   gap: 0;
   align-items: center;
   justify-content: flex-start;
-  transform: translateX(var(--shift-x)) scale(var(--scale));
+  transform: scale(var(--scale));
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
 }
 
 .work-card.is-center {
@@ -462,42 +475,26 @@ h1 {
   --scale: 0.95;
 }
 
-.work-card.is-hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.works-track.is-next .work-card {
-  --shift-x: -120%;
-}
-
-.works-track.is-prev .work-card {
-  --shift-x: 120%;
-}
-
 .work-card__info {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
-  max-width: 280px;
+  max-width: var(--work-card-width);
   text-align: center;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  padding: 0 12px;
+  background: #fff;
+  border-radius: 0;
+  padding: 0;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transform: translateY(-6px);
-  transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease,
-    padding 0.3s ease;
+  transform: none;
+  transition: opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease;
 }
 
 .work-card.is-center .work-card__info {
   opacity: 1;
-  transform: translateY(0);
-  max-height: 140px;
-  padding: 10px 12px 12px;
-  margin-top: 12px;
+  max-height: 120px;
+  padding: 0 0 8px;
 }
 
 .work-card h4 {
@@ -523,8 +520,8 @@ h1 {
 }
 
 .work-card .work-thumb {
-  width: 280px;
-  height: 280px;
+  width: var(--work-card-width);
+  height: var(--work-card-width);
   max-width: 100%;
   border-radius: 0;
   padding: 10px;
@@ -587,7 +584,7 @@ h1 {
 
 .work-modal__content {
   position: relative;
-  background: #fff;
+  background-color: #fff;
   color: #000;
   padding: 20px;
   border-radius: 12px;
@@ -595,6 +592,16 @@ h1 {
   width: 90%;
   z-index: 1;
   font-family: var(--font-modal);
+}
+
+.topic,
+.info-panel,
+.work-tab,
+.work-modal__content {
+  background-image: var(--noise-image);
+  background-size: 180px 180px;
+  background-repeat: repeat;
+  background-blend-mode: multiply;
 }
 
 .work-modal__content h3 {
@@ -728,21 +735,9 @@ h1 {
     grid-template-columns: repeat(2, minmax(120px, 1fr));
   }
 
-  .works-carousel {
-    padding: 0 90px;
-  }
-
-  .work-card {
-    max-width: 280px;
-  }
-
-  .work-card .work-thumb {
-    width: 260px;
-    height: 260px;
-  }
-
-  .work-card__info {
-    max-width: 260px;
+  .works {
+    --work-card-width: 240px;
+    --work-card-gap: 20px;
   }
 
   .work-nav.prev {
@@ -802,10 +797,6 @@ h1 {
     justify-content: center;
   }
 
-  .works-carousel {
-    padding: 0 64px;
-  }
-
   .works-body {
     grid-template-columns: 1fr;
     justify-items: center;
@@ -816,22 +807,9 @@ h1 {
     text-align: center;
   }
 
-  .work-card {
-    max-width: 240px;
-  }
-
-  .work-card--left,
-  .work-card--right {
-    display: none;
-  }
-
-  .work-card .work-thumb {
-    width: 240px;
-    height: 240px;
-  }
-
-  .work-card__info {
-    max-width: 240px;
+  .works {
+    --work-card-width: 220px;
+    --work-card-gap: 16px;
   }
 
   .work-nav {
@@ -873,17 +851,9 @@ h1 {
     margin-top: 60px;
   }
 
-  .works-carousel {
-    padding: 0 48px;
-  }
-
-  .work-card .work-thumb {
-    width: 200px;
-    height: 200px;
-  }
-
-  .work-card__info {
-    max-width: 200px;
+  .works {
+    --work-card-width: 190px;
+    --work-card-gap: 14px;
   }
 
   .work-nav {

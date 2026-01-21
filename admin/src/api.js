@@ -1,11 +1,13 @@
+const withTimestamp = (url) => `${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`;
+
 export async function fetchWorks() {
-  const res = await fetch("/api/works");
+  const res = await fetch(withTimestamp("/api/works"));
   if (!res.ok) throw new Error("failed");
   return res.json();
 }
 
 export async function fetchWork(slug) {
-  const res = await fetch(`/api/works/${encodeURIComponent(slug)}`);
+  const res = await fetch(withTimestamp(`/api/works/${encodeURIComponent(slug)}`));
   if (!res.ok) throw new Error("failed");
   return res.json();
 }

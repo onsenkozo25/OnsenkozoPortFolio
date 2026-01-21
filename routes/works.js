@@ -1,30 +1,50 @@
 const express = require('express');
-const prisma = require('../lib/prisma');
+const fs = require('fs/promises');
+const path = require('path');
 const { ensureAuth } = require('../lib/passport');
 
 const router = express.Router();
+const dataDir = path.join(__dirname, '..', 'data');
+const dataFile = path.join(dataDir, 'works.json');
+
+const readWorks = async () => {
+  try {
+    const raw = await fs.readFile(dataFile, 'utf-8');
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    if (err.code === 'ENOENT') return [];
+    throw err;
+  }
+};
+
+const writeWorks = async (works) => {
+  await fs.mkdir(dataDir, { recursive: true });
+  const tempFile = `${dataFile}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(works, null, 2), 'utf-8');
+  await fs.rename(tempFile, dataFile);
+};
 
 router.get('/', async (req, res, next) => {
-  if (!prisma) {
-    return res.status(503).json({ error: 'Prisma client not available. Install dependencies and run migrations.' });
-  }
   try {
     const kind = req.query.kind === 'made' ? 'made' : req.query.kind === 'did' ? 'did' : null;
-    const works = await prisma.work.findMany({
-      orderBy: { updatedAt: 'desc' },
-      take: 30,
-      where: kind ? { kind } : undefined
+    const works = await readWorks();
+    const filtered = kind ? works.filter((work) => work.kind === kind) : works;
+    const sorted = filtered.sort((a, b) => {
+      const aTime = new Date(a.updatedAt || a.createdAt || 0).getTime();
+      const bTime = new Date(b.updatedAt || b.createdAt || 0).getTime();
+      return bTime - aTime;
     });
     res.json(
-      works.map((w) => ({
-        id: w.id,
-        title: w.title,
-        slug: w.slug,
-        coverImage: w.coverImage,
-        excerpt: w.excerpt,
-        updatedAt: w.updatedAt,
-        kind: w.kind,
-        tags: w.tags || []
+      sorted.slice(0, 30).map((work) => ({
+        id: work.id,
+        title: work.title,
+        slug: work.slug,
+        coverImage: work.coverImage || null,
+        excerpt: work.excerpt || null,
+        updatedAt: work.updatedAt || work.createdAt || null,
+        kind: work.kind || 'did',
+        tags: work.tags || []
       }))
     );
   } catch (err) {
@@ -33,13 +53,11 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/:slug', async (req, res, next) => {
-  if (!prisma) {
-    return res.status(503).json({ error: 'Prisma client not available. Install dependencies and run migrations.' });
-  }
   try {
     const slug = String(req.params.slug || '').trim();
     if (!slug) return res.status(400).json({ error: 'slug is required' });
-    const work = await prisma.work.findUnique({ where: { slug } });
+    const works = await readWorks();
+    const work = works.find((item) => item.slug === slug);
     if (!work) return res.status(404).json({ error: 'not found' });
     res.json(work);
   } catch (err) {
@@ -48,9 +66,6 @@ router.get('/:slug', async (req, res, next) => {
 });
 
 router.post('/', ensureAuth, async (req, res, next) => {
-  if (!prisma) {
-    return res.status(503).json({ error: 'Prisma client not available. Install dependencies and run migrations.' });
-  }
   try {
     const title = String(req.body.title || '').trim();
     const slugRaw = String(req.body.slug || req.body.title || '').trim();
@@ -73,13 +88,43 @@ router.post('/', ensureAuth, async (req, res, next) => {
     if (!title || !slug) {
       return res.status(400).json({ error: 'title and slug are required' });
     }
-    const payload = { title, slug, coverImage, excerpt, contentJson, kind, tags };
-    const work = await prisma.work.upsert({
-      where: { slug },
-      update: payload,
-      create: payload
-    });
-    res.json(work);
+
+    const works = await readWorks();
+    const now = new Date().toISOString();
+    const existingIndex = works.findIndex((item) => item.slug === slug);
+    if (existingIndex >= 0) {
+      works[existingIndex] = {
+        ...works[existingIndex],
+        title,
+        slug,
+        coverImage,
+        excerpt,
+        contentJson,
+        kind,
+        tags,
+        updatedAt: now
+      };
+      await writeWorks(works);
+      return res.json(works[existingIndex]);
+    }
+
+    const nextId =
+      works.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
+    const newWork = {
+      id: nextId,
+      title,
+      slug,
+      coverImage,
+      excerpt,
+      contentJson,
+      kind,
+      tags,
+      createdAt: now,
+      updatedAt: now
+    };
+    works.push(newWork);
+    await writeWorks(works);
+    return res.json(newWork);
   } catch (err) {
     next(err);
   }
