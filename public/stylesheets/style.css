@@ -37,16 +37,8 @@ body {
   color: var(--ink);
   overscroll-behavior-y: none;
   overflow-x: hidden;
-  cursor: url("/images/カーソルほし.svg") 15 15, auto;
+  cursor: auto;
   position: relative;
-}
-
-* {
-  cursor: url("/images/カーソルほし.svg") 15 15, auto;
-}
-
-*:hover {
-  cursor: url("/images/カーソルほし.svg") 12 12, auto;
 }
 
 button,
@@ -57,18 +49,7 @@ a,
 .work-card,
 .contact-badge,
 .work-modal__close {
-  cursor: url("/images/カーソルほし.svg") 15 15, pointer;
-}
-
-button:hover,
-a:hover,
-.topic:hover,
-.work-tab:hover,
-.work-nav:hover,
-.work-card:hover,
-.contact-badge:hover,
-.work-modal__close:hover {
-  cursor: url("/images/カーソルほし.svg") 12 12, pointer;
+  cursor: pointer;
 }
 
 html {
@@ -344,7 +325,7 @@ h1 {
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   padding: 70px 32px 40px;
-  margin-top: calc(-1 * clamp(180px, 25vh, 300px));
+  margin-top: calc(-1 * clamp(140px, 20vh, 240px));
   color: var(--base);
   position: relative;
   display: block;
@@ -434,46 +415,89 @@ h1 {
 .works-carousel {
   position: relative;
   overflow: hidden;
-  padding: 0 140px;
+  padding: 0 120px;
   height: 100%;
   display: flex;
   align-items: center;
 }
 
 .works-track {
-  display: flex;
-  align-items: stretch;
-  transition: transform 0.3s ease;
-  gap: 32px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: 24px;
   height: 100%;
+  width: 100%;
 }
 
 .work-card {
-  flex: 0 0 60%;
-  max-width: 60%;
+  width: 100%;
+  max-width: 300px;
   min-height: 0;
-  border-radius: 18px;
+  border-radius: 0;
   padding: 18px;
   color: var(--ink);
   background: transparent;
   box-shadow: none;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  --shift-x: 0px;
+  --scale: 1;
+  transition: transform 0.42s ease, opacity 0.42s ease;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   align-items: center;
   justify-content: flex-start;
+  transform: translateX(var(--shift-x)) scale(var(--scale));
 }
 
 .work-card.is-center {
-  transform: scale(1.05);
+  --scale: 1.08;
   opacity: 1;
 }
 
 .work-card.is-side {
   opacity: 0.65;
-  transform: scale(0.95);
+  --scale: 0.95;
+}
+
+.work-card.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.works-track.is-next .work-card {
+  --shift-x: -120%;
+}
+
+.works-track.is-prev .work-card {
+  --shift-x: 120%;
+}
+
+.work-card__info {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 0 12px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease,
+    padding 0.3s ease;
+}
+
+.work-card.is-center .work-card__info {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 140px;
+  padding: 10px 12px 12px;
+  margin-top: 12px;
 }
 
 .work-card h4 {
@@ -481,26 +505,32 @@ h1 {
   font-size: 18px;
 }
 
-.work-card .work-date {
-  font-size: 13px;
-  opacity: 0.8;
-  margin: 0 0 8px;
+.work-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.9;
 }
 
-.work-card .work-excerpt {
-  margin: 0;
-  line-height: 1.6;
-  color: var(--ink);
-  text-align: center;
+.work-tags span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .work-card .work-thumb {
-  width: 350px;
-  height: 350px;
+  width: 280px;
+  height: 280px;
   max-width: 100%;
-  border-radius: 12px;
+  border-radius: 0;
+  padding: 10px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   display: grid;
   place-items: center;
 }
@@ -509,6 +539,7 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 0;
 }
 
 .work-nav {
@@ -566,6 +597,25 @@ h1 {
   font-family: var(--font-modal);
 }
 
+.work-modal__content h3 {
+  text-align: center;
+}
+
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 6px 0 16px;
+}
+
+.modal-tags span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.04);
+  font-size: 12px;
+}
 .work-modal__close {
   position: absolute;
   top: 10px;
@@ -576,11 +626,9 @@ h1 {
   cursor: pointer;
 }
 
-.modal-image img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin-bottom: 10px;
+.modal-content {
+  max-height: 70vh;
+  overflow: auto;
 }
 
 .work-copy {
@@ -681,17 +729,20 @@ h1 {
   }
 
   .works-carousel {
-    padding: 0 96px;
+    padding: 0 90px;
   }
 
   .work-card {
-    flex: 0 0 70%;
-    max-width: 70%;
+    max-width: 280px;
   }
 
   .work-card .work-thumb {
-    width: 300px;
-    height: 300px;
+    width: 260px;
+    height: 260px;
+  }
+
+  .work-card__info {
+    max-width: 260px;
   }
 
   .work-nav.prev {
@@ -766,13 +817,21 @@ h1 {
   }
 
   .work-card {
-    flex: 0 0 100%;
-    max-width: 100%;
+    max-width: 240px;
+  }
+
+  .work-card--left,
+  .work-card--right {
+    display: none;
   }
 
   .work-card .work-thumb {
     width: 240px;
     height: 240px;
+  }
+
+  .work-card__info {
+    max-width: 240px;
   }
 
   .work-nav {
@@ -821,6 +880,10 @@ h1 {
   .work-card .work-thumb {
     width: 200px;
     height: 200px;
+  }
+
+  .work-card__info {
+    max-width: 200px;
   }
 
   .work-nav {

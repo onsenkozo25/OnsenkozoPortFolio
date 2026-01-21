@@ -8,13 +8,14 @@ datasource db {
 }
 
 model Work {
-  id        Int      @id @default(autoincrement())
-  title     String
-  date      DateTime
-  excerpt   String
-  body      String
-  imageUrl  String?
-  kind      String   @default("did")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  coverImage  String?
+  excerpt     String?
+  contentJson Json
+  kind        String   @default("did")
+  tags        String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

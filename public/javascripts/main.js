@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     q1: { label: "暇な時間があったら？", title: "", detail: "Pinterestで、グラフィックとか3Dモデリングとかのデザイン見る" },
     q2: { label: "趣味は？", title: "", detail: "ものづくり" },
     q3: { label: "何が得意？", title: "", detail: "手を動かすことならなんでも Fusion Rhinoceros blender使える" },
-    q4: { label: "大事にしている価値観", title: "", detail: "誠実さと創造性" },
+    q4: { label: "大事にしている価値観", title: "", detail: "謙虚さ。天狗になると絶対どこかで失敗するので、等身大で正直にやっていきたいです。" },
     q5: { label: "SNS", title: "", detail: "InstagramとTwitter" },
     q6: { label: "質問6", title: "", detail: "" },
     q7: { label: "質問7", title: "", detail: "" },
@@ -29,9 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const rotatingTitle = document.getElementById("rotatingTitle");
   const modal = document.getElementById("workModal");
   const modalTitle = document.getElementById("modalTitle");
-  const modalDate = document.getElementById("modalDate");
+  const modalTags = document.getElementById("modalTags");
   const modalBody = document.getElementById("modalBody");
-  const modalImage = document.getElementById("modalImage");
+  const modalContent = document.getElementById("modalContent");
   const modalClose = document.querySelector(".work-modal__close");
   const modalOverlay = document.querySelector(".work-modal__overlay");
 
@@ -41,6 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentSlide = 0;
   const currentTab = { key: "did" };
   let wheelAccumulator = 0;
+  let autoScrollTimer = null;
+  const slotOrder = ["left", "center", "right"];
+  let slotCards = [];
 
   const startTitleRotation = () => {
     if (!rotatingTitle) return;
@@ -48,11 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
       titleIndex = (titleIndex + 1) % headerTitles.length;
       rotatingTitle.textContent = headerTitles[titleIndex];
     }, 5000);
-  };
-
-  const truncate = (text = "", max = 140) => {
-    if (!text) return "";
-    return text.length > max ? `${text.slice(0, max)}…` : text;
   };
 
   const formatDate = (dateStr) => {
@@ -64,77 +62,172 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${y}/${m}/${day}`;
   };
 
+  const formatTags = (tags) => {
+    if (!tags) return [];
+    const list = Array.isArray(tags) ? tags : [tags];
+    return list
+      .map((tag) => String(tag || "").trim())
+      .filter(Boolean)
+      .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`));
+  };
+
   const openModal = (work) => {
     if (!modal) return;
     modalTitle.textContent = work.title || "";
-    modalDate.textContent = formatDate(work.date);
-    modalBody.textContent = work.body || work.excerpt || "";
-    if (work.imageUrl) {
-      modalImage.innerHTML = `<img src="${work.imageUrl}" alt="${work.title}">`;
-    } else {
-      modalImage.innerHTML = "";
+    if (modalTags) {
+      const tags = formatTags(work.tags);
+      modalTags.innerHTML = tags.length
+        ? tags.map((tag) => `<span>${tag}</span>`).join("")
+        : "";
+    }
+    if (modalBody) modalBody.textContent = "";
+    if (modalContent) {
+      if (window.WorksViewer && typeof window.WorksViewer.render === "function") {
+        window.WorksViewer.render(modalContent, work.contentJson || []);
+      } else {
+        modalContent.textContent = "コンテンツの読み込みに失敗しました。";
+      }
     }
     modal.classList.remove("hidden");
   };
 
-  const closeModal = () => modal && modal.classList.add("hidden");
+  const closeModal = () => {
+    if (modalContent && window.WorksViewer && typeof window.WorksViewer.unmount === "function") {
+      window.WorksViewer.unmount(modalContent);
+    }
+    if (modal) modal.classList.add("hidden");
+  };
   [modalClose, modalOverlay].forEach((el) => {
     if (el) el.addEventListener("click", closeModal);
   });
 
-  const renderCarousel = () => {
-    if (!worksTrack) return;
-    worksTrack.innerHTML = "";
-    worksData.forEach((work) => {
-      const card = document.createElement("div");
-      card.className = "work-card";
-      const imgBlock = work.imageUrl
-        ? `<div class="work-thumb"><img src="${work.imageUrl}" alt="${work.title || ""}"></div>`
-        : `<div class="work-thumb"><div class="placeholder-text">画像なし</div></div>`;
-      card.innerHTML = `
-        ${imgBlock}
+  const openModalBySlug = async (slug) => {
+    if (!slug) return;
+    try {
+      const res = await fetch(`/api/works/${encodeURIComponent(slug)}`);
+      if (!res.ok) throw new Error("failed");
+      const work = await res.json();
+      openModal(work);
+    } catch (err) {
+      if (modalBody) modalBody.textContent = "詳細の取得に失敗しました。";
+      if (modal) modal.classList.remove("hidden");
+    }
+  };
+
+  const buildCardMarkup = (work) => {
+    const tags = formatTags(work.tags);
+    const tagsMarkup = tags.length
+      ? `<div class="work-tags">${tags.map((tag) => `<span>${tag}</span>`).join("")}</div>`
+      : `<div class="work-tags"></div>`;
+    const imgBlock = work.coverImage
+      ? `<div class="work-thumb"><img src="${work.coverImage}" alt="${work.title || ""}"></div>`
+      : `<div class="work-thumb"><div class="placeholder-text">画像なし</div></div>`;
+    return `
+      ${imgBlock}
+      <div class="work-card__info">
+        ${tagsMarkup}
         <h4>${work.title || ""}</h4>
-        <p class="work-date">${formatDate(work.date)}</p>
-        <p class="work-excerpt">${truncate(work.excerpt || work.body || "", 140)}</p>
-      `;
-      card.addEventListener("click", () => openModal(work));
+      </div>
+    `;
+  };
+
+  const ensureSlots = () => {
+    if (!worksTrack || slotCards.length) return;
+    worksTrack.innerHTML = "";
+    slotCards = slotOrder.map((pos) => {
+      const card = document.createElement("div");
+      card.className = `work-card work-card--${pos}`;
+      card.addEventListener("click", () => {
+        const slug = card.dataset.slug;
+        if (slug) openModalBySlug(slug);
+      });
       worksTrack.appendChild(card);
+      return card;
     });
-    updateCarousel();
+  };
+
+  const updateCard = (card, work, role, hide) => {
+    card.classList.remove("is-center", "is-side", "is-hidden");
+    card.classList.add(role === "center" ? "is-center" : "is-side");
+    if (hide) {
+      card.classList.add("is-hidden");
+      card.innerHTML = "";
+      card.dataset.slug = "";
+      return;
+    }
+    card.innerHTML = buildCardMarkup(work);
+    card.dataset.slug = work.slug || "";
   };
 
   const updateCarousel = () => {
     if (!worksTrack) return;
-    const cards = Array.from(worksTrack.children);
-    if (!cards.length) return;
-    const cardWidth = cards[0].getBoundingClientRect().width + 32; // includes gap
-    const offset = cardWidth * currentSlide;
-    worksTrack.style.transform = `translateX(-${offset}px)`;
-    cards.forEach((card, idx) => {
-      card.classList.remove("is-center", "is-side");
-      if (idx === currentSlide) {
-        card.classList.add("is-center");
-      } else {
-        card.classList.add("is-side");
-      }
-    });
+    ensureSlots();
+    if (!worksData.length) return;
+    const total = worksData.length;
+    const centerIndex = ((currentSlide % total) + total) % total;
+    const leftIndex = (centerIndex - 1 + total) % total;
+    const rightIndex = (centerIndex + 1) % total;
+    const showSides = total > 1;
+    updateCard(slotCards[0], worksData[leftIndex], "side", !showSides);
+    updateCard(slotCards[1], worksData[centerIndex], "center", false);
+    updateCard(slotCards[2], worksData[rightIndex], "side", total <= 2);
+  };
+
+  const renderCarousel = () => {
+    if (!worksTrack) return;
+    ensureSlots();
+    updateCarousel();
+    startAutoScroll();
   };
 
   const nextSlide = () => {
     if (!worksData.length) return;
-    currentSlide = (currentSlide + 1) % worksData.length;
-    updateCarousel();
+    if (worksTrack.classList.contains("is-animating")) return;
+    worksTrack.classList.add("is-animating", "is-next");
+    setTimeout(() => {
+      currentSlide = (currentSlide + 1) % worksData.length;
+      updateCarousel();
+      worksTrack.classList.remove("is-animating", "is-next");
+    }, 420);
   };
 
   const prevSlideFn = () => {
     if (!worksData.length) return;
-    currentSlide = (currentSlide - 1 + worksData.length) % worksData.length;
-    updateCarousel();
+    if (worksTrack.classList.contains("is-animating")) return;
+    worksTrack.classList.add("is-animating", "is-prev");
+    setTimeout(() => {
+      currentSlide = (currentSlide - 1 + worksData.length) % worksData.length;
+      updateCarousel();
+      worksTrack.classList.remove("is-animating", "is-prev");
+    }, 420);
   };
 
   if (nextBtn) nextBtn.addEventListener("click", nextSlide);
   if (prevBtn) prevBtn.addEventListener("click", prevSlideFn);
   window.addEventListener("resize", updateCarousel);
+
+  const startAutoScroll = () => {
+    if (autoScrollTimer) {
+      clearInterval(autoScrollTimer);
+      autoScrollTimer = null;
+    }
+    if (worksData.length <= 1) return;
+    autoScrollTimer = setInterval(() => {
+      if (document.hidden) return;
+      nextSlide();
+    }, 3200);
+  };
+
+  const resetAutoScroll = () => {
+    if (autoScrollTimer) {
+      clearInterval(autoScrollTimer);
+      autoScrollTimer = null;
+    }
+    startAutoScroll();
+  };
+
+  if (nextBtn) nextBtn.addEventListener("click", resetAutoScroll);
+  if (prevBtn) prevBtn.addEventListener("click", resetAutoScroll);
 
   const loadWorks = async () => {
     try {
@@ -148,33 +241,30 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           id: 1,
           title: "サンプル実績",
-          date: new Date().toISOString(),
-          excerpt: "ここに抜粋テキストが入ります。管理画面から実績を追加してください。",
-          body: "ここに本文が入ります。管理画面から差し替えてください。",
-          imageUrl: "",
+          slug: "sample-1",
+          coverImage: "",
+          tags: ["イラスト"],
           kind: currentTab.key
         },
         {
           id: 2,
           title: "サンプル2",
-          date: new Date().toISOString(),
-          excerpt: "もう一つの実績サンプルです。",
-          body: "本文を追加してください。",
-          imageUrl: "",
+          slug: "sample-2",
+          coverImage: "",
+          tags: ["インターン"],
           kind: currentTab.key
         },
         {
           id: 3,
           title: "サンプル3",
-          date: new Date().toISOString(),
-          excerpt: "3件目のサンプル。",
-          body: "本文を追加してください。",
-          imageUrl: "",
+          slug: "sample-3",
+          coverImage: "",
+          tags: ["電子工作"],
           kind: currentTab.key
         }
       ];
     }
-    currentSlide = 0;
+    currentSlide = worksData.length > 1 ? 1 : 0;
     renderCarousel();
   };
 
@@ -276,9 +366,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (wheelAccumulator > 80) {
           nextSlide();
           wheelAccumulator = 0;
+          resetAutoScroll();
         } else if (wheelAccumulator < -80) {
           prevSlideFn();
           wheelAccumulator = 0;
+          resetAutoScroll();
         }
       },
       { passive: false }

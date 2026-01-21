@@ -12,6 +12,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/works-viewer/viewer.css" />
   </head>
   <body>
     <header class="top-bar">
@@ -69,11 +70,12 @@
       <div class="work-modal__content">
         <button class="work-modal__close" aria-label="閉じる">×</button>
         <h3 id="modalTitle"></h3>
-        <p class="modal-date" id="modalDate"></p>
-        <div class="modal-image" id="modalImage"></div>
+        <div class="modal-tags" id="modalTags"></div>
+        <div class="modal-content" id="modalContent"></div>
         <p id="modalBody"></p>
       </div>
     </div>
+    <script src="/works-viewer/viewer.js"></script>
     <script src="/javascripts/main.js"></script>
   </body>
 </html>

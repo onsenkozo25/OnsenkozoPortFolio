@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin - Works</title>
+    <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" />
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -30,6 +31,47 @@
         background: #28736f;
         color: #fff;
         cursor: pointer;
+      }
+      .cropper {
+        display: none;
+        padding: 12px;
+        border: 1px dashed #bbb;
+        border-radius: 8px;
+        background: #fafafa;
+      }
+      .cropper.is-active {
+        display: grid;
+        gap: 8px;
+      }
+      .crop-hint {
+        margin: 0;
+        color: #555;
+        font-size: 0.9rem;
+      }
+      .crop-preview {
+        width: 100%;
+        max-width: 520px;
+        max-height: 360px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+        display: block;
+        object-fit: contain;
+      }
+      .crop-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .crop-controls button {
+        background: #fff;
+        color: #28736f;
+        border: 1px solid #28736f;
+      }
+      .crop-status {
+        color: #666;
+        font-size: 0.9rem;
       }
       table {
         border-collapse: collapse;
@@ -62,7 +104,23 @@
         <label><input type="radio" name="kind" value="did" checked /> やったこと</label>
         <label><input type="radio" name="kind" value="made" /> つくったもの</label>
       </fieldset>
-      <label>画像ファイル <input type="file" name="image" accept="image/*" /></label>
+      <fieldset>
+        <legend>タグ</legend>
+        <label><input type="checkbox" name="tags" value="イラスト" /> #イラスト</label>
+        <label><input type="checkbox" name="tags" value="インターン" /> #インターン</label>
+        <label><input type="checkbox" name="tags" value="電子工作" /> #電子工作</label>
+        <label><input type="checkbox" name="tags" value="立体造形" /> #立体造形</label>
+        <label><input type="checkbox" name="tags" value="コンテスト" /> #コンテスト</label>
+      </fieldset>
+      <label>画像ファイル <input id="imageInput" type="file" name="image" accept="image/*" /></label>
+      <div class="cropper" id="cropper">
+        <p class="crop-hint">画像上をドラッグしてトリミング範囲を指定してください。</p>
+        <img id="cropPreview" class="crop-preview" alt="トリミング対象の画像プレビュー" />
+        <div class="crop-controls">
+          <button type="button" id="cropReset">トリミング解除</button>
+          <span class="crop-status" id="cropStatus">範囲未指定</span>
+        </div>
+      </div>
       <label>画像URL（ファイル未指定時のみ） <input name="imageUrl" /></label>
       <button type="submit">追加</button>
     </form>
@@ -93,5 +151,100 @@
         <% }) %>
       </tbody>
     </table>
+    <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
+    <script>
+      const form = document.querySelector("form");
+      const imageInput = document.getElementById("imageInput");
+      const cropperWrap = document.getElementById("cropper");
+      const preview = document.getElementById("cropPreview");
+      const resetButton = document.getElementById("cropReset");
+      const statusText = document.getElementById("cropStatus");
+      let cropper = null;
+      let isSubmitting = false;
+
+      function setStatus(text) {
+        statusText.textContent = text;
+      }
+
+      function destroyCropper() {
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+      }
+
+      imageInput.addEventListener("change", () => {
+        const file = imageInput.files && imageInput.files[0];
+        if (!file) {
+          destroyCropper();
+          cropperWrap.classList.remove("is-active");
+          preview.removeAttribute("src");
+          setStatus("範囲未指定");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          preview.src = reader.result;
+          preview.onload = () => {
+            destroyCropper();
+            cropper = new Cropper(preview, {
+              viewMode: 1,
+              dragMode: "crop",
+              autoCropArea: 0.8,
+              responsive: true,
+              background: false,
+              movable: true,
+              zoomable: true,
+              scalable: false,
+              cropend() {
+                setStatus("範囲指定済み");
+              }
+            });
+            cropperWrap.classList.add("is-active");
+            setStatus("範囲指定済み");
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+
+      resetButton.addEventListener("click", () => {
+        if (!cropper) return;
+        cropper.reset();
+        setStatus("範囲未指定");
+      });
+
+      form.addEventListener("submit", (event) => {
+        const file = imageInput.files && imageInput.files[0];
+        if (!file || !cropper || isSubmitting) {
+          return;
+        }
+        event.preventDefault();
+        const canvas = cropper.getCroppedCanvas();
+        if (!canvas) {
+          form.submit();
+          return;
+        }
+        const type = file.type || "image/png";
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              form.submit();
+              return;
+            }
+            const extMatch = file.name.match(/\.[^/.]+$/);
+            const ext = extMatch ? extMatch[0] : "";
+            const baseName = file.name.replace(/\.[^/.]+$/, "");
+            const croppedFile = new File([blob], `${baseName}-cropped${ext}`, { type });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(croppedFile);
+            imageInput.files = dataTransfer.files;
+            isSubmitting = true;
+            form.submit();
+          },
+          type,
+          0.92
+        );
+      });
+    </script>
   </body>
 </html>

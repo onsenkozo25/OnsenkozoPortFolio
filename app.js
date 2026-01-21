@@ -18,6 +18,7 @@ var worksApiRouter = require('./routes/works');
 var adminRouter = require('./routes/admin');
 var authRouter = require('./routes/auth');
 var contactRouter = require('./routes/contact');
+var uploadRouter = require('./routes/upload');
 require('./lib/passport'); // パスポート設定の読み込み
 
 var app = express();
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'change_me_secret',
@@ -45,6 +47,7 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/works', worksApiRouter);
+app.use('/api/upload', uploadRouter);
 app.use('/admin', adminRouter);
 app.use('/auth', authRouter);
 app.use('/api/contact', contactRouter);

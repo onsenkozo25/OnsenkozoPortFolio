@@ -1,0 +1,27 @@
+{
+  "name": "works-admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@blocknote/core": "^0.46.1",
+    "@blocknote/react": "^0.46.1",
+    "@blocknote/mantine": "^0.46.1",
+    "@mantine/core": "^8.3.13",
+    "@mantine/hooks": "^8.3.13",
+    "@mantine/utils": "^6.0.22",
+    "cropperjs": "^1.6.2",
+    "react": "^18.3.1",
+    "react-cropper": "^2.3.3",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.10"
+  }
+}
