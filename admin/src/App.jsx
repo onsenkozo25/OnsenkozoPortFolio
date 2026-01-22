@@ -259,6 +259,9 @@ const App = () => {
                 background={false}
                 autoCropArea={0.9}
                 responsive={true}
+                checkCrossOrigin={false}
+                minCropBoxHeight={10}
+                minCropBoxWidth={10}
                 ref={cropperRef}
                 className="cover-cropper"
               />

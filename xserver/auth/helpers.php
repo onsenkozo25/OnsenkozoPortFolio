@@ -10,7 +10,7 @@ function auth_start(): void
 
 function auth_config(): array
 {
-    $root = dirname(__DIR__, 2);
+    $root = dirname(__DIR__);
     $paths = [
         $root . '/data/oauth.php',
         $root . '/data/oauth.example.php'

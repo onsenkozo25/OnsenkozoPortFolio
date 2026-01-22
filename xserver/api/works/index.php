@@ -6,8 +6,9 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$root = dirname(__DIR__, 3);
+$root = dirname(__DIR__, 2);
 $dataFile = $root . '/data/works.json';
+
 require_once dirname(__DIR__, 2) . '/auth/helpers.php';
 
 function jsonResponse($payload, int $status = 200): void
@@ -20,10 +21,18 @@ function jsonResponse($payload, int $status = 200): void
 function readWorks(string $dataFile): array
 {
     if (!file_exists($dataFile)) {
+        // error_log("works.json not found: $dataFile");
         return [];
     }
     $raw = file_get_contents($dataFile);
+    if ($raw === false) {
+        return [];
+    }
     $data = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        // error_log("JSON decode error: " . json_last_error_msg());
+        return [];
+    }
     return is_array($data) ? $data : [];
 }
 

@@ -1,6 +1,12 @@
 RewriteEngine On
 RewriteBase /api/
 
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^works/([^/]+)/?$ /api/works/index.php?slug=$1 [QSA,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^works/?$ /api/works/index.php [QSA,L]
+
 RewriteRule ^upload/?$ /api/upload/index.php [QSA,L]

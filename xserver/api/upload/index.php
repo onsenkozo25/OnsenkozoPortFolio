@@ -29,8 +29,8 @@ if (!is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
     jsonResponse(['error' => 'upload failed'], 400);
 }
 
-$root = dirname(__DIR__, 3);
-$uploadDir = $root . '/public/uploads';
+$root = dirname(__DIR__, 2);
+$uploadDir = $root . '/uploads';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0775, true);
 }
