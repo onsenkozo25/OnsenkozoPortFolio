@@ -55,7 +55,10 @@ a,
 
 html {
   overscroll-behavior-y: none;
+  overflow-x: hidden;
+  width: 100%;
 }
+
 .page {
   max-width: 1200px;
   margin: 0 auto;
@@ -341,11 +344,11 @@ h1 {
 }
 
 .works.did {
-  background: url("/images/なみなみターコイズ.svg") repeat;
+  background: url("/images/naminamiTacois.svg") repeat;
 }
 
 .works.made {
-  background: url("/images/なみなみオレンジ.svg") repeat;
+  background: url("/images/naminamiOrange.svg") repeat;
 }
 
 .works-topbar {
@@ -623,6 +626,7 @@ h1 {
   background: rgba(0, 0, 0, 0.04);
   font-size: 12px;
 }
+
 .work-modal__close {
   position: absolute;
   top: 10px;
@@ -681,7 +685,7 @@ h1 {
 .bg-giza {
   width: 220px;
   height: 220px;
-  background-image: url("/images/ギザギザ.svg");
+  background-image: url("/images/gizagiza.svg");
   top: 10px;
   right: -70px;
 }
@@ -698,6 +702,7 @@ h1 {
   from {
     transform: translateY(0);
   }
+
   to {
     transform: translateY(-20px);
   }
@@ -753,6 +758,7 @@ h1 {
   body {
     padding: 0;
   }
+
   .top-bar {
     height: 64px;
     padding: 0 14px;
@@ -869,6 +875,7 @@ h1 {
     right: 8px;
   }
 }
-  .page {
-    padding: 24px 18px 40px;
-  }
+
+.page {
+  padding: 24px 18px 40px;
+}
