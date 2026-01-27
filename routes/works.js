@@ -130,4 +130,22 @@ router.post('/', ensureAuth, async (req, res, next) => {
   }
 });
 
+router.delete('/:slug', ensureAuth, async (req, res, next) => {
+  try {
+    const slug = String(req.params.slug || '').trim();
+    if (!slug) return res.status(400).json({ error: 'slug is required' });
+
+    const works = await readWorks();
+    const index = works.findIndex((item) => item.slug === slug);
+    if (index < 0) return res.status(404).json({ error: 'not found' });
+
+    const deletedWork = works[index];
+    works.splice(index, 1);
+    await writeWorks(works);
+    res.json({ message: 'deleted', slug, deletedWork });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

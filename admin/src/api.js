@@ -39,3 +39,14 @@ export async function uploadFile(file) {
   const data = await res.json();
   return data.url;
 }
+
+export async function deleteWork(slug) {
+  const res = await fetch(`/api/works/${encodeURIComponent(slug)}/`, {
+    method: "DELETE"
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "delete failed");
+  }
+  return res.json();
+}

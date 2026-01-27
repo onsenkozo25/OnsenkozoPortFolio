@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import Cropper from "react-cropper";
-import { fetchWork, fetchWorks, saveWork, uploadFile } from "./api.js";
+import { fetchWork, fetchWorks, saveWork, uploadFile, deleteWork } from "./api.js";
 
 const emptyContent = [];
 
@@ -111,6 +111,32 @@ const App = () => {
       refreshWorks();
     } catch (err) {
       setStatus(err.message || "保存に失敗しました。");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!slug) {
+      setStatus("削除対象が選択されていません。");
+      return;
+    }
+    if (!window.confirm(`「${title}」を削除してもよろしいですか？`)) {
+      return;
+    }
+    setStatus("削除中...");
+    try {
+      await deleteWork(slug);
+      setStatus("削除しました。");
+      setTitle("");
+      setSlug("");
+      setExcerpt("");
+      setCoverImage("");
+      setKind("did");
+      setTags([]);
+      setContentJson(emptyContent);
+      setCoverSource("");
+      refreshWorks();
+    } catch (err) {
+      setStatus(err.message || "削除に失敗しました。");
     }
   };
 
@@ -288,6 +314,9 @@ const App = () => {
         <div className="form-actions">
           <button type="button" onClick={handleSave}>
             保存
+          </button>
+          <button type="button" onClick={handleDelete} style={{ backgroundColor: "#c83e3e" }}>
+            削除
           </button>
           <span className="status-text">{status}</span>
         </div>
