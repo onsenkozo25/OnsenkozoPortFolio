@@ -1,85 +1,88 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ISSHIN</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Palette+Mosaic&family=WDXL+Lubrifont+JP+N&display=swap=family=family=M+PLUS+1p"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/stylesheets/style.css" />
-    <link rel="stylesheet" href="/works-viewer/viewer.css" />
-  </head>
-  <body>
-    <header class="top-bar">
-      <div class="bar-content">
-        <h1 id="rotatingTitle">ISSHIN</h1>
-      </div>
-    </header>
-    <div class="bg-blob bg-giza"></div>
-    <div class="bg-blob bg-maru"></div>
 
-    <div class="page">
-      <main class="main-hero">
-        <section class="info-panel" aria-live="polite">
-          <div class="info-label" id="infoLabel">Click a card</div>
-          <h2 id="infoTitle"></h2>
-          <p id="infoBody"></p>
-        </section>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    なかたにいっしんについて
+  </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Palette+Mosaic&family=WDXL+Lubrifont+JP+N&display=swap=family=family=M+PLUS+1p"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/stylesheets/style.css" />
+  <link rel="stylesheet" href="/works-viewer/viewer.css" />
+</head>
 
-        <div class="portrait">
-          <div class="portrait-frame">
-            <img class="floating-portrait" src="/images/メインアイコン.svg" alt="一心のアイコン" />
-          </div>
-        </div>
+<body>
+  <header class="top-bar">
+    <div class="bar-content">
+      <h1 id="rotatingTitle">ISSHIN</h1>
+    </div>
+  </header>
+  <div class="bg-blob bg-giza"></div>
+  <div class="bg-blob bg-maru"></div>
 
-        <section class="button-board" id="topicBoard">
-          <button class="topic" data-topic="contact">コンタクトフィード</button>
-          <button class="topic" data-topic="q1">暇な時間があったら？</button>
-          <button class="topic" data-topic="q2">趣味は？</button>
-          <button class="topic" data-topic="q3">何が得意？</button>
-          <button class="topic" data-topic="q4">大事にしている価値観</button>
-          <button class="topic" data-topic="q5">SNS</button>
-          <button class="topic" data-topic="q6">質問6</button>
-          <button class="topic" data-topic="q7">質問7</button>
-          <button class="topic" data-topic="q8">質問8</button>
-        </section>
-      </main>
-
-
-      <section class="works did">
-        <div class="works-topbar">
-          <div class="work-tab tab-did active" data-tab="did">やったこと</div>
-          <div class="work-tab tab-made" data-tab="made">つくったもの</div>
-        </div>
-        <div class="works-body" id="worksContent">
-          <div class="works-carousel">
-            <button class="work-nav prev" aria-label="前へ">&#9664;</button>
-            <div class="works-track" id="worksTrack"></div>
-            <button class="work-nav next" aria-label="次へ">&#9654;</button>
-          </div>
-        </div>
+  <div class="page">
+    <main class="main-hero">
+      <section class="info-panel" aria-live="polite">
+        <div class="info-label" id="infoLabel">Click a card</div>
+        <h2 id="infoTitle"></h2>
+        <p id="infoBody"></p>
       </section>
-    </div>
-    <div class="work-modal hidden" id="workModal" role="dialog" aria-modal="true">
-      <div class="work-modal__overlay"></div>
-      <div class="work-modal__content">
-        <button class="work-modal__close" aria-label="閉じる">×</button>
-        <h3 id="modalTitle"></h3>
-        <div class="modal-tags" id="modalTags"></div>
-        <div class="modal-content" id="modalContent"></div>
-        <p id="modalBody"></p>
+
+      <div class="portrait">
+        <div class="portrait-frame">
+          <img class="floating-portrait" src="/images/メインアイコン.svg" alt="一心のアイコン" />
+        </div>
       </div>
+
+      <section class="button-board" id="topicBoard">
+        <button class="topic" data-topic="q1">趣味</button>
+        <button class="topic" data-topic="q2">性格</button>
+        <button class="topic" data-topic="q3">スキル</button>
+        <button class="topic" data-topic="q4">大切な価値観</button>
+        <button class="topic" data-topic="q5">原動力</button>
+        <button class="topic" data-topic="q6">気になること</button>
+        <button class="topic" data-topic="q7">顔みせて</button>
+        <button class="topic" data-topic="q8">SNS</button>
+        <button class="topic" data-topic="contact">コンタクトフィード</button>
+      </section>
+    </main>
+
+
+    <section class="works made">
+      <div class="works-topbar">
+        <div class="work-tab tab-made active" data-tab="made">つくったもの</div>
+        <div class="work-tab tab-did" data-tab="did">やったこと</div>
+      </div>
+      <div class="works-body" id="worksContent">
+        <div class="works-carousel">
+          <div class="works-track" id="worksTrack"></div>
+        </div>
+        <button class="work-nav prev" aria-label="前へ"><img src="/images/arrow.svg" alt="" /></button>
+        <button class="work-nav next" aria-label="次へ"><img src="/images/arrow.svg" alt=""
+            class="arrow-right" /></button>
+      </div>
+    </section>
+  </div>
+  <div class="work-modal hidden" id="workModal" role="dialog" aria-modal="true">
+    <div class="work-modal__overlay"></div>
+    <div class="work-modal__content">
+      <button class="work-modal__close" aria-label="閉じる">×</button>
+      <h3 id="modalTitle"></h3>
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-content" id="modalContent"></div>
+      <p id="modalBody"></p>
     </div>
-    <script src="/works-viewer/viewer.js"></script>
-    <script src="/javascripts/main.js"></script>
-  </body>
+  </div>
+  <script src="/works-viewer/viewer.js"></script>
+  <script src="/javascripts/main.js"></script>
+</body>
+
 </html>

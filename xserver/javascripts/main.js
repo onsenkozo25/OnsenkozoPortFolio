@@ -1,18 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
   const topics = {
+    q1: { label: "趣味", title: "", detail: "温泉　ものづくり全般" },
+    q2: { label: "性格", title: "", detail: "お調子者だと思います。人を笑かすのが好きです。でもやるべきことはきちっとやります。メリハリしっかりつけられるタイプです。" },
+    q3: { label: "スキル", title: "", detail: "設計・人と話すこと\nBlender Fusion Rhinoceros使えます。人と話すのは大好きで、あまり緊張しないので得意だと思います。" },
+    q4: { label: "大切な価値観", title: "", detail: "謙虚さ。天狗になったら絶対足元救われると思ってます。正直に、等身大でいろんなことに挑戦したい。面白いものを作りたいです。" },
+    q5: { label: "原動力", title: "", detail: "自分の手でものを作りたいという欲求が小さい頃からずっとあります。\n自分で作ったら愛着が湧くし、大事にできます。いろんな人と、いろんな方法で、いろんなものを作りたいです。" },
+    q6: { label: "気になること", title: "", detail: "ものづくりの家庭で生まれる無駄やゴミというものに関心があります。 大好きなものづくりがネガティブな課題を生み出しているというのは心苦しいです。流行によって買われる短命のものなく、ずっと大事にされるものを作りたいです。" },
+    q7: { label: "顔みせて", title: "", detail: "こんな感じ" },
+    q8: { label: "SNS", title: "", detail: "instagramで作ったものとか日常あげてます" },
     contact: {
       label: "コンタクトフィード",
       title: "お問い合わせフォーム",
       detail: ""
-    },
-    q1: { label: "暇な時間があったら？", title: "", detail: "Pinterestで、グラフィックとか3Dモデリングとかのデザイン見る" },
-    q2: { label: "趣味は？", title: "", detail: "ものづくり" },
-    q3: { label: "何が得意？", title: "", detail: "手を動かすことならなんでも Fusion Rhinoceros blender使える" },
-    q4: { label: "大事にしている価値観", title: "", detail: "謙虚さ。天狗になると絶対どこかで失敗するので、等身大で正直にやっていきたいです。" },
-    q5: { label: "SNS", title: "", detail: "InstagramとTwitter" },
-    q6: { label: "質問6", title: "", detail: "" },
-    q7: { label: "質問7", title: "", detail: "" },
-    q8: { label: "質問8", title: "", detail: "" }
+    }
   };
 
   const titleEl = document.getElementById("infoTitle");
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let titleIndex = 0;
   let worksData = [];
   let currentSlide = 0;
-  const currentTab = { key: "did" };
+  const currentTab = { key: "made" };
   let wheelAccumulator = 0;
   let autoScrollTimer = null;
   const withTimestamp = (url) => `${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`;
@@ -291,17 +291,49 @@ document.addEventListener("DOMContentLoaded", () => {
     titleEl.textContent = topic.title;
     labelEl.textContent = topic.label;
 
+    // q7以外ではアイコンを元に戻す
+    if (key !== "q7") {
+      const portraitImg = document.querySelector(".floating-portrait");
+      if (portraitImg) {
+        portraitImg.src = "/images/メインアイコン.svg";
+      }
+    }
+
     if (key === "contact") {
       bodyEl.innerHTML = `
         <form class="contact-form">
           <label>お名前<input type="text" name="name" required /></label>
           <label>メール<input type="email" name="email" required /></label>
-          <label>メッセージ<textarea name="message" rows="4" required></textarea></label>
+          <label>メッセージ<textarea name=\"message\" rows=\"2\" required></textarea></label>
           <button type="submit">送信</button>
           <p class="contact-status" aria-live="polite"></p>
         </form>
       `;
       setupContactForm();
+    } else if (key === "q7") {
+      const portraitImg = document.querySelector(".floating-portrait");
+      if (portraitImg) {
+        portraitImg.src = "/images/thisface.png";
+      }
+      bodyEl.textContent = topic.detail || "";
+    } else if (key === "q8") {
+      bodyEl.innerHTML = `
+        <p>${topic.detail || ""}</p>
+        <div class="sns-links">
+          <a href="https://www.instagram.com/onsenkozo_ra/" target="_blank" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <circle cx="17.5" cy="6.5" r="1.5"></circle>
+            </svg>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=100093065790018" target="_blank" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 2h-3a6 6 0 0 0-6 6v3H7v4h2v8h4v-8h3l1-4h-4V8a2 2 0 0 1 2-2h3z"></path>
+            </svg>
+          </a>
+        </div>
+      `;
     } else {
       bodyEl.textContent = topic.detail || "";
     }
@@ -330,33 +362,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  if (worksContent) {
-    worksContent.addEventListener(
-      "wheel",
-      (e) => {
-        const atFirst = currentSlide === 0 && e.deltaY < 0;
-        const atLast = currentSlide === worksData.length - 1 && e.deltaY > 0;
-        if (!worksData.length || atFirst || atLast) return; // allow normal scroll out
-        e.preventDefault();
-        wheelAccumulator += e.deltaY;
-        if (wheelAccumulator > 80) {
-          nextSlide();
-          wheelAccumulator = 0;
-          resetAutoScroll();
-        } else if (wheelAccumulator < -80) {
-          prevSlideFn();
-          wheelAccumulator = 0;
-          resetAutoScroll();
-        }
-      },
-      { passive: false }
-    );
-  }
-
   // Set a friendly default state.
   updatePanel("contact");
   if (worksSection) {
-    worksSection.classList.add("did");
+    // Default is set in HTML to 'made', and matches currentTab.key
   }
   startTitleRotation();
   loadWorks();

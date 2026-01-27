@@ -365,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Set a friendly default state.
   updatePanel("contact");
   if (worksSection) {
-    worksSection.classList.add("did");
+    // Default is set in HTML to 'made', and matches currentTab.key
   }
   startTitleRotation();
   loadWorks();

@@ -4,10 +4,15 @@
 # Xserver Deployment Script
 # ==========================================
 
-# Settings - PLEASE EDIT THESE
-HOST="svXXXX.xserver.jp"        # xserver host name
-USER="server_id"                # xserver server ID
-REMOTE_PATH="/home/server_id/domain.com/public_html/"  # Remote path
+# Load settings from .env if present
+if [ -f "../.env" ]; then
+  export $(grep -v '^#' ../.env | xargs)
+fi
+
+# Settings
+HOST=${XSERVER_HOST:-"svXXXX.xserver.jp"}        # xserver host name
+USER=${XSERVER_USER:-"server_id"}                # xserver server ID
+REMOTE_PATH=${XSERVER_REMOTE_PATH:-"/home/server_id/domain.com/public_html/"}  # Remote path
 
 # Safety flag: --dry-run shows what would happen without doing it.
 # Remove "--dry-run" when you are ready to deploy.

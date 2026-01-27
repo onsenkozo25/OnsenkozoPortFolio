@@ -29,39 +29,29 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
+  overflow-x: hidden;
   margin: 0;
+  width: 100%;
   min-height: 100vh;
   font-family: var(--font-base);
   background: var(--base) url("/images/tile-pattern.svg") repeat;
   background-size: 70px 70px;
   color: var(--ink);
-  overscroll-behavior-y: none;
-  /* overflow-x: hidden; */
   overflow-y: auto;
   cursor: auto;
   position: relative;
 }
 
-button,
-a,
-.topic,
-.work-tab,
-.work-nav,
-.work-card,
-.contact-badge,
-.work-modal__close {
-  cursor: pointer;
-}
-
-html {
-  width: 100%;
-}
-
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 24px 48px;
+  padding: 32px 24px 0px;
   position: relative;
   z-index: 1;
 }
@@ -335,7 +325,6 @@ h1 {
   float: none;
   clear: both;
   min-height: 650px;
-  height: 650px;
   overflow: visible;
   font-family: var(--font-works-body);
   --work-card-width: 280px;
@@ -407,6 +396,7 @@ h1 {
   background: rgba(0, 0, 0, 0);
   padding-top: 0;
   height: 100%;
+  position: relative;
 }
 
 .works.did .works-topbar::after {
@@ -542,7 +532,7 @@ h1 {
 }
 
 .work-nav {
-  position: fixed;
+  position: absolute;
   bottom: 20px;
   background: none;
   color: #fff;
@@ -843,7 +833,7 @@ h1 {
 
 @media (max-width: 520px) {
   .page {
-    padding: 24px 16px 36px;
+    padding: 24px 16px 0px;
   }
 
   .portrait-frame {
@@ -886,7 +876,7 @@ h1 {
 }
 
 .page {
-  padding: 24px 18px 40px;
+  padding: 24px 18px 0px;
 }
 
 .sns-links {

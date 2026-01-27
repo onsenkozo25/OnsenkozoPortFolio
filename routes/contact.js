@@ -5,6 +5,25 @@ var router = express.Router();
 
 function buildTransportConfig() {
   var user = process.env.SMTP_USER;
+
+  // OAuth2 support
+  var clientId = process.env.GOOGLE_CLIENT_ID;
+  var clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  var refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+
+  if (clientId && clientSecret && refreshToken && user) {
+    return {
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: user,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        refreshToken: refreshToken
+      }
+    };
+  }
+
   var pass = process.env.SMTP_PASS;
   if (!user || !pass) return null;
 
@@ -31,7 +50,7 @@ function sanitizeHeader(value) {
   return String(value || '').replace(/[\r\n]+/g, ' ').trim();
 }
 
-router.post('/', async function(req, res) {
+router.post('/', async function (req, res) {
   try {
     var name = sanitizeHeader(req.body && req.body.name);
     var email = sanitizeHeader(req.body && req.body.email);
