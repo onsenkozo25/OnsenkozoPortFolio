@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: "/admin/",
   build: {
-    outDir: "dist",
+    outDir: path.resolve(__dirname, "..", "public", "admin"),
     emptyOutDir: true
   },
   server: {

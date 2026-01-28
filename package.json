@@ -11,7 +11,9 @@
     "viewer:dev": "npm --prefix viewer run dev",
     "viewer:build": "npm --prefix viewer run build",
     "migrate:json": "node scripts/migrate-prisma-to-json.js",
-    "build:xserver": "node scripts/build_xserver.js"
+    "build": "npm run admin:build && npm run viewer:build",
+    "build:xserver": "node scripts/build_xserver.js",
+    "deploy": "npm run build && npm run build:xserver"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

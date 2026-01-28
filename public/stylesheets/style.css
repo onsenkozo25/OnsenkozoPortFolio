@@ -327,8 +327,12 @@ h1 {
   min-height: 650px;
   overflow: visible;
   font-family: var(--font-works-body);
-  --work-card-width: 280px;
+  --work-card-width: 330px;
   --work-card-gap: 24px;
+  --work-nav-size: 120px;
+  --work-nav-icon: 72px;
+  --work-nav-offset: 20px;
+  --work-nav-bottom: 8px;
 }
 
 .works.did {
@@ -396,7 +400,7 @@ h1 {
   background: rgba(0, 0, 0, 0);
   padding-top: 0;
   height: 100%;
-  position: relative;
+  position: static;
 }
 
 .works.did .works-topbar::after {
@@ -533,13 +537,13 @@ h1 {
 
 .work-nav {
   position: absolute;
-  bottom: 20px;
+  bottom: var(--work-nav-bottom);
   background: none;
   color: #fff;
   border: none;
   border-radius: 0;
-  width: 120px;
-  height: 120px;
+  width: var(--work-nav-size);
+  height: var(--work-nav-size);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -548,8 +552,11 @@ h1 {
 }
 
 .work-nav img {
-  width: 72px;
-  height: 72px;
+  width: var(--work-nav-icon);
+  height: var(--work-nav-icon);
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
   display: block;
 }
 
@@ -558,11 +565,11 @@ h1 {
 }
 
 .work-nav.prev {
-  left: 20px;
+  left: var(--work-nav-offset);
 }
 
 .work-nav.next {
-  right: 20px;
+  right: var(--work-nav-offset);
 }
 
 .work-modal {
@@ -742,14 +749,7 @@ h1 {
   .works {
     --work-card-width: 240px;
     --work-card-gap: 20px;
-  }
-
-  .work-nav.prev {
-    left: 24px;
-  }
-
-  .work-nav.next {
-    right: 24px;
+    --work-nav-offset: 24px;
   }
 }
 
@@ -790,6 +790,12 @@ h1 {
     height: 560px;
     min-height: 560px;
     margin-top: 60px;
+    --work-card-width: 220px;
+    --work-card-gap: 16px;
+    --work-nav-size: 60px;
+    --work-nav-icon: 50px;
+    --work-nav-offset: 12px;
+    --work-nav-bottom: 12px;
   }
 
   .works-topbar {
@@ -812,23 +818,6 @@ h1 {
     text-align: center;
   }
 
-  .works {
-    --work-card-width: 220px;
-    --work-card-gap: 16px;
-  }
-
-  .work-nav {
-    width: 36px;
-    height: 36px;
-  }
-
-  .work-nav.prev {
-    left: 12px;
-  }
-
-  .work-nav.next {
-    right: 12px;
-  }
 }
 
 @media (max-width: 520px) {
@@ -854,25 +843,14 @@ h1 {
     height: 520px;
     min-height: 520px;
     margin-top: 60px;
-  }
-
-  .works {
     --work-card-width: 190px;
     --work-card-gap: 14px;
+    --work-nav-size: 60px;
+    --work-nav-icon: 50px;
+    --work-nav-offset: 8px;
+    --work-nav-bottom: 10px;
   }
 
-  .work-nav {
-    width: 32px;
-    height: 32px;
-  }
-
-  .work-nav.prev {
-    left: 8px;
-  }
-
-  .work-nav.next {
-    right: 8px;
-  }
 }
 
 .page {

@@ -3,7 +3,7 @@ const path = require('path');
 const { ensureAuth } = require('../lib/passport');
 
 const router = express.Router();
-const adminDist = path.join(__dirname, '..', 'admin', 'dist');
+const adminDist = path.join(__dirname, '..', 'public', 'admin');
 
 router.use(ensureAuth);
 router.use(express.static(adminDist));

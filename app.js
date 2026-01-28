@@ -13,7 +13,6 @@ try {
 }
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var worksApiRouter = require('./routes/works');
 var adminRouter = require('./routes/admin');
 var authRouter = require('./routes/auth');
@@ -45,7 +44,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/api/works', worksApiRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/admin', adminRouter);
