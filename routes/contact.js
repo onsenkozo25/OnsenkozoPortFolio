@@ -60,6 +60,28 @@ router.post('/', async function (req, res) {
       return res.status(400).json({ message: '必須項目が不足しています。' });
     }
 
+    // GAS Proxy Support
+    if (process.env.CONTACT_GAS_URL) {
+      try {
+        const gasRes = await fetch(process.env.CONTACT_GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message })
+        });
+
+        if (!gasRes.ok) {
+          throw new Error('GAS response not ok: ' + gasRes.status);
+        }
+        // GAS usually returns 200 even on error if not handled, but check response text/json if needed
+        // Our GAS script returns JSON
+        const gasData = await gasRes.json();
+        return res.json(gasData);
+      } catch (err) {
+        console.error('GAS Proxy Error:', err);
+        return res.status(500).json({ message: '送信に失敗しました (GAS)。' });
+      }
+    }
+
     var transportConfig = buildTransportConfig();
     if (!transportConfig) {
       return res.status(500).json({ message: 'メール送信設定が未完了です。' });

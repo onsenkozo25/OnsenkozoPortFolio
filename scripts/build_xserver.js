@@ -37,7 +37,8 @@ return [
     'client_id' => '${envConfig?.GOOGLE_CLIENT_ID || ''}',
     'client_secret' => '${envConfig?.GOOGLE_CLIENT_SECRET || ''}',
     'redirect_uri' => '${envConfig?.GOOGLE_CALLBACK_URL_PRODUCTION || envConfig?.GOOGLE_CALLBACK_URL || ''}',
-    'allowed_email' => '${envConfig?.ALLOWED_EMAIL || ''}'
+    'allowed_email' => '${envConfig?.ALLOWED_EMAIL || ''}',
+    'gas_url' => '${envConfig?.CONTACT_GAS_URL || ''}'
 ];
 `;
 
@@ -84,6 +85,22 @@ SYNC_DIRS.forEach(dirName => {
         console.error(`❌ Error syncing ${dirName}:`, error);
     }
 });
+
+// --- 5. Copy Admin Build (admin/dist -> xserver/admin) ---
+const ADMIN_DIST = path.join(PROJECT_ROOT, 'admin/dist');
+const XSERVER_ADMIN = path.join(XSERVER_DIR, 'admin');
+
+if (fs.existsSync(ADMIN_DIST)) {
+    console.log(`Copying admin build from ${ADMIN_DIST} -> ${XSERVER_ADMIN}...`);
+    try {
+        fs.cpSync(ADMIN_DIST, XSERVER_ADMIN, { recursive: true, force: true });
+        console.log('✅ Synced admin build (admin/dist)');
+    } catch (error) {
+        console.error('❌ Error syncing admin build:', error);
+    }
+} else {
+    console.warn('⚠️ admin/dist not found. Run npm run admin:build first.');
+}
 
 console.log('\n🎉 XServer build complete! The "xserver" folder is ready for upload.');
 console.log(`📂 Location: ${XSERVER_DIR}`);

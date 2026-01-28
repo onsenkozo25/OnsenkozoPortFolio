@@ -10,3 +10,4 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^works/?$ /api/works/index.php [QSA,L]
 
 RewriteRule ^upload/?$ /api/upload/index.php [QSA,L]
+RewriteRule ^contact/?$ /api/contact/index.php [QSA,L]

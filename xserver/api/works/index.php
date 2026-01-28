@@ -181,4 +181,30 @@ if ($method === 'POST') {
     jsonResponse($newWork);
 }
 
+if ($method === 'DELETE') {
+    auth_require_login(true);
+    $slug = resolveSlug();
+    if ($slug === '') {
+        jsonResponse(['error' => 'slug is required'], 400);
+    }
+
+    $works = readWorks($dataFile);
+    $found = false;
+    $newWorks = [];
+    foreach ($works as $work) {
+        if (($work['slug'] ?? '') === $slug) {
+            $found = true;
+            continue;
+        }
+        $newWorks[] = $work;
+    }
+
+    if ($found) {
+        writeWorks($dataFile, $newWorks);
+        jsonResponse(['success' => true]);
+    } else {
+        jsonResponse(['error' => 'not found'], 404);
+    }
+}
+
 jsonResponse(['error' => 'method not allowed'], 405);
